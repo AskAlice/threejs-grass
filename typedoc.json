@@ -1,0 +1,12 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "threejs-grass",
+  "entryPoints": ["src/index.ts", "src/react.tsx"],
+  "out": "docs",
+  "readme": "README.md",
+  "tsconfig": "tsconfig.json",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "validation": { "notExported": true, "invalidLink": true, "notDocumented": true },
+  "requiredToBeDocumented": ["Enum", "EnumMember", "Variable", "Function", "Class", "Interface", "Property", "Method", "Accessor", "TypeAlias", "Constructor"]
+}

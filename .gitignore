@@ -1,0 +1,8 @@
+node_modules
+dist
+.ref
+.playwright-mcp
+.DS_Store
+docs
+site
+.remember
