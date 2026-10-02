@@ -78,9 +78,9 @@ function Scene() {
     setStyle(Object.fromEntries(Object.keys(style).map((k) => [k, p[k as keyof typeof p]])))
   }, [look.preset])
   const wind = useControls('Wind', {
-    strength: { value: 0.35, min: 0, max: 1.5 },
-    speed: { value: 0.6, min: 0, max: 3 },
-    scale: { value: 0.06, min: 0.005, max: 0.3 },
+    strength: { value: 0.45, min: 0, max: 1.5 },
+    speed: { value: 0.8, min: 0, max: 3 },
+    scale: { value: 0.045, min: 0.005, max: 0.3 },
     angle: { value: 20, min: 0, max: 360 },
   })
   const lod = useControls('Levels of detail', {

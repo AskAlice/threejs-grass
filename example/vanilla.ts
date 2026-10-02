@@ -54,7 +54,7 @@ Object.assign(window, { demo: { scene, camera, controls, grass, env, renderer } 
 const gui = new GUI({ title: 'threejs-grass' })
 const params = {
   preset: 'kentuckyBluegrass', type: 'blades', maxDistance: 200, interaction: 1,
-  windStrength: 0.35, windSpeed: 0.6, windScale: 0.06, windAngle: 20,
+  windStrength: 0.45, windSpeed: 0.8, windScale: 0.045, windAngle: 20,
   debugLods: false,
   elevation: 28, azimuth: 50, exposure: 0.6, bloom: 0.1,
 }
