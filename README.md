@@ -4,7 +4,7 @@ Infinite, terrain-aware grass for **three.js** and **react-three-fiber**, built 
 
 **[Live demo (three.js)](https://askalice.github.io/threejs-grass/demo/)** · **[Live demo (React Three Fiber)](https://askalice.github.io/threejs-grass/demo/r3f.html)** · **[API docs](https://askalice.github.io/threejs-grass/)**
 
-![A dense meadow on rolling hills, with balls rolling through the grass](media/hero.jpg)
+[![A dense meadow on rolling hills, with balls rolling through the grass. Click to open the live demo](media/hero.jpg)](https://askalice.github.io/threejs-grass/demo/)
 
 - **Infinite grass**: a tiled field that streams around the camera, so you never build one giant mesh.
 - **Performance**: four configurable LODs, per-cell density allocation, smooth blade-by-blade thinning, frustum-culled tiles, and a time-budgeted tile builder.
@@ -25,21 +25,38 @@ That's it. The grass updates itself every time the scene renders.
 
 > **WebGPU only.** Use `WebGPURenderer` from `three/webgpu`. It falls back to WebGL2 by itself when WebGPU is unavailable. Classic `WebGLRenderer` is not supported. Tested with three r186.
 
+## Live demos
+
+Both demos run in the browser and expose every feature: presets, blade style (height up to 3 m), wind,
+the four LODs with a debug tint, the terrain painter (add, erase, raise, lower, save), lighting and bloom.
+Two balls roll through the field to show interaction, and a minimap shows the grass map.
+
+| [three.js demo](https://askalice.github.io/threejs-grass/demo/) | [React Three Fiber demo](https://askalice.github.io/threejs-grass/demo/r3f.html) |
+|---|---|
+| [![The three.js demo with its lil-gui control panel](media/demo-threejs.jpg)](https://askalice.github.io/threejs-grass/demo/) | [![The React Three Fiber demo with its leva control panel](media/r3f-demo.jpg)](https://askalice.github.io/threejs-grass/demo/r3f.html) |
+| Plain three.js + `lil-gui` · [source](example/vanilla.ts) | `<Grass>` component + `leva` · [source](example/r3f.tsx) |
+
+Tip: open the **Levels of detail** folder and turn on **show LODs**, or switch on **paint** in the **Terrain Painter** folder and drag across the field.
+
 ## Gallery
+
+All of these were captured from the demos. Click any image to open the live demo.
 
 | | |
 |---|---|
-| ![A dirt path cut through dense grass by a grass map](media/grass-map.jpg) **Grass maps**: paths and clearings | ![A spiral of grass painted onto bare terrain](media/painter.jpg) **Terrain painter**: paint grass in the scene |
-| ![Tall grass back-lit by a low sun](media/tall-grass.jpg) **Tall grass, back-lit translucency** | ![Billboard grass tufts](media/billboards.jpg) **Billboard grass**: the lightweight type |
-| ![The field tinted by level of detail in four colours](media/lods.jpg) **Four LODs** (`debugLods`) | ![The R3F demo with its leva control panel](media/r3f-demo.jpg) **React Three Fiber demo** with leva controls |
+| [![A dirt path cut through dense grass by a grass map](media/grass-map.jpg)](https://askalice.github.io/threejs-grass/demo/) **Grass maps**: paths and clearings | [![A spiral of grass painted onto bare terrain](media/painter.jpg)](https://askalice.github.io/threejs-grass/demo/) **Terrain painter**: paint grass in the scene |
+| [![Tall grass back-lit by a low sun](media/tall-grass.jpg)](https://askalice.github.io/threejs-grass/demo/) **Tall grass, back-lit translucency** | [![Billboard grass tufts](media/billboards.jpg)](https://askalice.github.io/threejs-grass/demo/) **Billboard grass**: the lightweight type |
+| [![The field tinted by level of detail in four colours](media/lods.jpg)](https://askalice.github.io/threejs-grass/demo/) **Four LODs** (`debugLods`) | [![The R3F demo with its leva control panel](media/r3f-demo.jpg)](https://askalice.github.io/threejs-grass/demo/r3f.html) **React Three Fiber demo** with leva controls |
 
-![All twelve presets side by side](media/presets.jpg)
+[![All twelve presets side by side](media/presets.jpg)](https://askalice.github.io/threejs-grass/demo/)
 *The 12 presets. Top row: Kentucky Bluegrass, Perennial Ryegrass, Tall Fescue, Bermuda. Middle row: Zoysia, St. Augustine, Buffalo, Fine Fescue. Bottom row: Toon Meadow, Golden Savanna, Autumn Haze, Frostbite.*
 
 ---
 
 ## Contents
 
+- [Live demos](#live-demos)
+- [Gallery](#gallery)
 - [Install](#install)
 - [Quick start: three.js](#quick-start-threejs)
 - [Quick start: react-three-fiber](#quick-start-react-three-fiber)
