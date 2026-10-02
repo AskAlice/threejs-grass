@@ -137,7 +137,7 @@ const DEFAULTS: Omit<GrassSettings, keyof GrassStyle | 'wind'> = {
   debugLods: false,
   buildBudget: 3,
 }
-const DEFAULT_WIND: WindOptions = { direction: [1, 0.35], strength: 0.35, scale: 0.06, speed: 0.6 }
+const DEFAULT_WIND: WindOptions = { direction: [1, 0.35], strength: 0.45, scale: 0.045, speed: 0.8 }
 
 /** Billboard clumps hold ~9 strands, so they need far fewer instances for the same look. */
 const BILLBOARD_DENSITY_RATIO = 1 / 5
@@ -358,10 +358,11 @@ export class Grass {
 
     for (const [key, tile] of this.tiles) {
       if (tile.seen !== frame) {
-        disposeTile(tile)
+        this.removeTile(tile)
         this.tiles.delete(key)
       }
     }
+    this.flushRetired()
 
     pending.sort((a, b) => a.dist - b.dist)
     const start = performance.now()
@@ -386,6 +387,7 @@ export class Grass {
   dispose(): void {
     this.unhook()
     this.clearTiles()
+    this.flushRetired(true)
     this.material?.dispose()
     for (const g of this.baseGeometries.values()) g.dispose()
     this.baseGeometries.clear()
@@ -486,9 +488,9 @@ export class Grass {
       geometry.setAttribute('uv', base.attributes.uv)
       geometry.setAttribute('aOffset', new InstancedBufferAttribute(new Float32Array(capacity * 4), 4))
       geometry.setAttribute('aParams', new InstancedBufferAttribute(new Float32Array(capacity * 4), 4))
-      geometry.setAttribute('aPatch', new InstancedBufferAttribute(new Float32Array(capacity * 2), 2))
+      geometry.setAttribute('aPatch', new InstancedBufferAttribute(new Float32Array(capacity * 3), 3))
       tile.mesh.geometry = geometry
-      disposeInstanced(old)
+      this.retire(old)
     }
     const aOffset = geometry.getAttribute('aOffset') as InstancedBufferAttribute
     const aParams = geometry.getAttribute('aParams') as InstancedBufferAttribute
@@ -504,7 +506,7 @@ export class Grass {
       const cell = tile.cells[c]!
       offsets.set(cell.offsets.subarray(0, k * 4), w * 4)
       params.set(cell.params.subarray(0, k * 4), w * 4)
-      patches.set(cell.patches.subarray(0, k * 2), w * 2)
+      patches.set(cell.patches.subarray(0, k * 3), w * 3)
       for (let i = 0; i < k; i++) {
         const y = cell.offsets[i * 4 + 1]
         if (y < minY) minY = y
@@ -580,7 +582,7 @@ export class Grass {
       }
       cell.offsets = resize(cell.offsets, 4)
       cell.params = resize(cell.params, 4)
-      cell.patches = resize(cell.patches, 2)
+      cell.patches = resize(cell.patches, 3)
     }
     const { offsets, params, patches } = cell
 
@@ -616,8 +618,12 @@ export class Grass {
       params[o + 1] = ws
       params[o + 2] = (i + 0.5) / full
       params[o + 3] = seed
-      patches[cell.count * 2] = valueNoise(wx * 0.05, wz * 0.05) * 0.7
-      patches[cell.count * 2 + 1] = valueNoise(wx * 0.018 + 31.7, wz * 0.018 - 12.3) * 0.7
+      const p = cell.count * 3
+      patches[p] = valueNoise(wx * 0.05, wz * 0.05) * 0.7 // light/dark patches
+      patches[p + 1] = valueNoise(wx * 0.018 + 31.7, wz * 0.018 - 12.3) * 0.7 // dry patches
+      // Flow field: a slowly meandering lean direction, so the field looks brushed into swirls
+      // rather than combed in one direction.
+      patches[p + 2] = valueNoise(wx * 0.07 - 5.1, wz * 0.07 + 9.4) + valueNoise(wx * 0.19 + 2.3, wz * 0.19 - 7.7) * 0.4
       cell.count++
     }
     cell.candidates = upTo
@@ -701,13 +707,35 @@ export class Grass {
   }
 
   private clearTiles() {
-    for (const tile of this.tiles.values()) disposeTile(tile)
+    for (const tile of this.tiles.values()) this.removeTile(tile)
     this.tiles.clear()
+  }
+
+  private removeTile(tile: Tile) {
+    tile.mesh.removeFromParent()
+    this.retire(tile.mesh.geometry)
+  }
+
+  /**
+   * Replaced tile geometries are freed a while later rather than immediately: WebGPU builds render
+   * pipelines asynchronously, and one still in flight may read the old geometry. Freeing it at once
+   * (which detaches the shared blade attributes) made that pipeline fail and the tile blink out.
+   */
+  private retired: { geometry: InstancedBufferGeometry; frame: number }[] = []
+  private retire(geometry: InstancedBufferGeometry) {
+    this.retired.push({ geometry, frame: this.frame })
+  }
+  private flushRetired(all = false) {
+    while (this.retired.length && (all || this.frame - this.retired[0].frame > RETIRE_AFTER_FRAMES)) {
+      disposeInstanced(this.retired.shift()!.geometry)
+    }
   }
 }
 
 const _v = new Vector3()
 const _t = new Vector3()
+/** Frames to wait before freeing a replaced tile geometry (see `Grass.retire`). */
+const RETIRE_AFTER_FRAMES = 60
 /** Cells are built with this many times the blades they currently need. */
 const HEADROOM = 1.3
 
@@ -724,8 +752,10 @@ function needsRebuild(tile: Tile, needs: Int32Array, segments: number) {
 }
 
 /**
- * The base blade shape: a tapered strip with x in [-0.5, 0.5] and y in [0, 1], `segments` rows plus a
- * tip vertex. Exposed for custom instancing setups; Grass creates these for you.
+ * The base blade shape: a tapered, folded strip with x in [-0.5, 0.5] and y in [0, 1]. Each of the
+ * `segments` rows has three vertices (left edge, midrib, right edge) so the shader can fold the
+ * blade along its midrib; a single vertex forms the tip. Exposed for custom instancing setups;
+ * Grass creates these for you.
  */
 export function createBladeGeometry(segments: number): BufferGeometry {
   const pos: number[] = []
@@ -733,18 +763,21 @@ export function createBladeGeometry(segments: number): BufferGeometry {
   const index: number[] = []
   for (let r = 0; r < segments; r++) {
     const y = r / segments
-    const half = 0.5 * Math.pow(1 - y, 0.6)
-    pos.push(-half, y, 0, half, y, 0)
-    uv.push(0.5 - half, y, 0.5 + half, y)
+    // Pinched at the base, widest around a quarter of the way up, tapering to a sharp tip.
+    const half = 0.5 * Math.pow(1 - y, 0.75) * (0.72 + 0.28 * Math.min(1, y / 0.25))
+    pos.push(-half, y, 0, 0, y, 0, half, y, 0)
+    uv.push(0, y, 0.5, y, 1, y)
     if (r > 0) {
-      const a = (r - 1) * 2
-      index.push(a, a + 1, a + 2, a + 1, a + 3, a + 2)
+      const a = (r - 1) * 3
+      index.push(a, a + 1, a + 3, a + 1, a + 4, a + 3) // left half
+      index.push(a + 1, a + 2, a + 4, a + 2, a + 5, a + 4) // right half
     }
   }
-  const tip = segments * 2
+  const b = (segments - 1) * 3
+  const tip = segments * 3
   pos.push(0, 1, 0)
   uv.push(0.5, 1)
-  index.push(tip - 2, tip - 1, tip)
+  index.push(b, b + 1, tip, b + 1, b + 2, tip)
   return indexedGeometry(pos, uv, index)
 }
 
@@ -780,11 +813,6 @@ function disposeInstanced(geometry: InstancedBufferGeometry) {
   geometry.deleteAttribute('position')
   geometry.deleteAttribute('uv')
   geometry.dispose()
-}
-
-function disposeTile(tile: Tile) {
-  tile.mesh.removeFromParent()
-  disposeInstanced(tile.mesh.geometry)
 }
 
 /** Smooth 2D value noise in [-1, 1]. */

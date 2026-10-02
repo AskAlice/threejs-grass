@@ -106,7 +106,7 @@ export function createGroundMaterial(grass?: Grass) {
   const n2 = mx_noise_float(p.mul(2.7)).mul(0.5).add(0.5)
   const n3 = mx_noise_float(p.mul(9.0)).mul(0.5).add(0.5)
   // Soil under grass: a darkened version of the grass base colour, so it suits every preset.
-  const under: any = grass ? grass.uniforms.baseColor.mul(mix(float(0.45), float(0.75), n1.mul(n2))) : vec3(0.05, 0.09, 0.02)
+  const under: any = grass ? grass.uniforms.baseColor.mul(mix(float(0.65), float(0.95), n1.mul(n2))) : vec3(0.05, 0.09, 0.02)
   const dirt = mix(vec3(0.3, 0.2, 0.11), vec3(0.58, 0.44, 0.27), n2.mul(0.6).add(n3.mul(0.4)))
   const material = new THREE.MeshStandardNodeMaterial({ roughness: 0.95 })
   const coverage = grass ? grass.mapNode(p).coverage : float(1)

@@ -448,7 +448,7 @@ useEffect(() => { if (grass.current) grass.current.object.visible = false }, [])
 | `tileSize` | `number` | `25` | Tile edge (m) |
 | `maxDistance` | `number` | `200` | Grass radius (m); fades over the last 15% |
 | `lods` | `GrassLOD[4]` | see below | Exactly four levels, near → far |
-| `wind` | `Partial<WindOptions>` | `{ direction: [1, 0.35], strength: 0.35, scale: 0.06, speed: 0.6 }` | |
+| `wind` | `Partial<WindOptions>` | `{ direction: [1, 0.35], strength: 0.45, scale: 0.045, speed: 0.8 }` | |
 | `maxSlope` | `number` | `1.2` | Max gradient (rise/run) that grows grass; `Infinity` = no limit |
 | `grassMap` | `GrassMap \| null` | `null` | Coverage/height control |
 | `interactors` | `Interactor[]` | `[]` | Up to 16 objects that push grass |
