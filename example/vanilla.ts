@@ -4,8 +4,11 @@ import GUI from 'three/addons/libs/lil-gui.module.min.js'
 import { Grass, GrassMap, TerrainPainter, presets, type BrushMode, type PresetName } from 'threejs-grass'
 import { createEnvironment, createGroundMaterial, createMinimap, hills, hillsGeometry, paintPath } from './shared'
 
+// `?embed`: chrome-less background mode used by the landing page (no UI, slow camera drift).
+const embed = new URLSearchParams(location.search).has('embed')
+
 const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: location.search.includes('webgl') })
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5))
+renderer.setPixelRatio(Math.min(devicePixelRatio, embed ? 1 : 1.5))
 renderer.setSize(innerWidth, innerHeight)
 document.body.appendChild(renderer.domElement)
 await renderer.init()
@@ -123,7 +126,17 @@ const backend = (renderer.backend as any).isWebGPUBackend ? 'WebGPU' : 'WebGL2 f
 let frames = 0
 let last = performance.now()
 
-renderer.setAnimationLoop((t) => {
+if (embed) {
+  gui.hide()
+  minimap.canvas.remove()
+  hud.style.display = 'none'
+  controls.enabled = false
+  controls.autoRotate = true
+  controls.autoRotateSpeed = 0.25
+}
+
+let firstFrame = true
+const loop = (t: number) => {
   balls.forEach((ball, i) => {
     const a = t * 0.00035 * (i ? -1 : 1) + i * 2
     const r = 4 + i * 2.5
@@ -140,6 +153,15 @@ renderer.setAnimationLoop((t) => {
     frames = 0
     last = t
   }
+  if (firstFrame && embed) parent.postMessage('threejs-grass:ready', '*')
+  firstFrame = false
+}
+renderer.setAnimationLoop(loop)
+
+// The landing page pauses the embedded demo while it is scrolled out of view.
+addEventListener('message', (e) => {
+  if (e.data === 'threejs-grass:pause') renderer.setAnimationLoop(null)
+  if (e.data === 'threejs-grass:play') renderer.setAnimationLoop(loop)
 })
 
 addEventListener('resize', () => {

@@ -25,7 +25,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.ts",
     "docs": "typedoc",
-    "build:site": "typedoc --out site && vite build example --base ./ --outDir ../site/demo --emptyOutDir"
+    "build:site": "rm -rf site && typedoc --out site/docs && vite build example --base ./ --outDir ../site/demo --emptyOutDir && cp landing/index.html site/ && mkdir -p site/media && cp media/* landing/media/* site/media/",
+    "prepare": "npm run build"
   },
   "peerDependencies": {
     "@react-three/fiber": ">=9",

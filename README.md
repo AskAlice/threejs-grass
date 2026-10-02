@@ -2,7 +2,7 @@
 
 Infinite, terrain-aware grass for **three.js** and **react-three-fiber**, built on WebGPU (TSL).
 
-**[Live demo (three.js)](https://askalice.github.io/threejs-grass/demo/)** · **[Live demo (React Three Fiber)](https://askalice.github.io/threejs-grass/demo/r3f.html)** · **[API docs](https://askalice.github.io/threejs-grass/)**
+**[Live demo (three.js)](https://askalice.github.io/threejs-grass/demo/)** · **[Live demo (React Three Fiber)](https://askalice.github.io/threejs-grass/demo/r3f.html)** · **[API docs](https://askalice.github.io/threejs-grass/docs/)** · **[Website](https://askalice.github.io/threejs-grass/)**
 
 [![A dense meadow on rolling hills, with balls rolling through the grass. Click to open the live demo](media/hero.jpg)](https://askalice.github.io/threejs-grass/demo/)
 
