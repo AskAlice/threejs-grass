@@ -2,7 +2,7 @@ import * as THREE from 'three/webgpu'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import GUI from 'three/addons/libs/lil-gui.module.min.js'
 import { Grass, GrassMap, TerrainPainter, presets, type BrushMode, type PresetName } from 'threejs-grass'
-import { createEnvironment, createGroundMaterial, createMinimap, hills, hillsGeometry, paintPath } from './shared'
+import { createEnvironment, createGroundMaterial, createMinimap, hills, hillsGeometry, keepAboveGround, paintPath } from './shared'
 
 // `?embed`: chrome-less background mode used by the landing page (no UI, slow camera drift).
 const embed = new URLSearchParams(location.search).has('embed')
@@ -144,6 +144,9 @@ const loop = (t: number) => {
     ball.position.y = hills(ball.position.x, ball.position.z) + 0.45
   })
   controls.update()
+  // In embed mode, ride over the hills at a steady eye height while auto-rotating.
+  if (embed) camera.position.y += (hills(camera.position.x, camera.position.z) + 2 - camera.position.y) * 0.08
+  keepAboveGround(camera, hills)
   env.follow(controls.target)
   env.render() // grass updates itself via scene.onBeforeRender
   minimap.update(camera.position)

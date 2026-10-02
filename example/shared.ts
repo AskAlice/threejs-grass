@@ -8,6 +8,13 @@ import type { Grass, GrassMap } from 'threejs-grass'
 export const hills = (x: number, z: number) =>
   Math.sin(x * 0.03) * 4 + Math.cos(z * 0.025) * 5 + Math.sin((x + z) * 0.011) * 8
 
+/** Keeps a camera above the terrain. Orbit controls know nothing about hills, so orbiting (or
+ *  auto-rotating) at a fixed height can otherwise dip the camera under a rise. */
+export function keepAboveGround(camera: THREE.Camera, height: (x: number, z: number) => number, clearance = 0.6) {
+  const ground = height(camera.position.x, camera.position.z)
+  if (ground === ground && camera.position.y < ground + clearance) camera.position.y = ground + clearance
+}
+
 export function hillsGeometry(size = 1000, segments = 320) {
   const geo = new THREE.PlaneGeometry(size, size, segments, segments).rotateX(-Math.PI / 2)
   const pos = geo.attributes.position

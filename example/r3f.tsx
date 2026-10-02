@@ -5,7 +5,7 @@ import { Canvas, extend, useFrame, useThree, type ThreeToJSXElements } from '@re
 import { OrbitControls } from '@react-three/drei'
 import { button, folder, useControls } from 'leva'
 import { Grass, GrassMap, presets, type GrassImpl, type GrassLOD, type PresetName } from 'threejs-grass/react'
-import { createEnvironment, createGroundMaterial, createMinimap, hills, hillsGeometry, paintPath } from './shared'
+import { createEnvironment, createGroundMaterial, createMinimap, hills, hillsGeometry, keepAboveGround, paintPath } from './shared'
 
 declare module '@react-three/fiber' {
   interface ThreeElements extends ThreeToJSXElements<typeof THREE> {}
@@ -34,6 +34,7 @@ function Environment() {
   })
 
   useFrame(() => {
+    keepAboveGround(camera, hills)
     if (controls) env.follow(controls.target)
     env.render()
   }, 1)
