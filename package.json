@@ -1,45 +1,20 @@
 {
-  "name": "threejs-grass",
-  "version": "0.2.0",
-  "description": "Infinite, terrain-aware WebGPU grass for three.js and react-three-fiber",
+  "name": "threejs-worldgen",
+  "private": true,
+  "description": "Procedural terrain and scenery packages for three.js and react-three-fiber",
   "type": "module",
   "license": "Apache-2.0",
-  "sideEffects": false,
-  "files": [
-    "dist"
+  "workspaces": [
+    "packages/heightfield",
+    "packages/grass"
   ],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./react": {
-      "types": "./dist/react.d.ts",
-      "import": "./dist/react.js"
-    }
-  },
   "scripts": {
-    "build": "tsup src/index.ts src/react.tsx --format esm --dts --clean --external three --external react --external @react-three/fiber",
-    "prepublishOnly": "npm run build",
+    "build": "npm run build --workspaces",
     "dev": "vite example",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.ts",
+    "test": "node --test packages/*/test/*.test.ts",
     "docs": "typedoc",
-    "build:site": "rm -rf site && typedoc --out site/docs && vite build example --base ./ --outDir ../site/demo --emptyOutDir && cp landing/index.html site/ && mkdir -p site/media && cp media/* landing/media/* site/media/",
-    "prepare": "npm run build"
-  },
-  "peerDependencies": {
-    "@react-three/fiber": ">=9",
-    "react": ">=19",
-    "three": ">=0.186.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    },
-    "@react-three/fiber": {
-      "optional": true
-    }
+    "build:site": "rm -rf site && typedoc --out site/docs && vite build example --base ./ --outDir ../site/demo --emptyOutDir && cp landing/index.html site/ && mkdir -p site/media && cp media/* landing/media/* site/media/"
   },
   "devDependencies": {
     "@react-three/drei": "^10.7.9",
@@ -56,22 +31,5 @@
     "typedoc": "^0.28.20",
     "typescript": "^5.9.3",
     "vite": "^8.3.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AskAlice/threejs-grass.git"
-  },
-  "homepage": "https://askalice.github.io/threejs-grass/",
-  "keywords": [
-    "three",
-    "threejs",
-    "three.js",
-    "grass",
-    "webgpu",
-    "tsl",
-    "react-three-fiber",
-    "r3f",
-    "foliage",
-    "terrain"
-  ]
+  }
 }

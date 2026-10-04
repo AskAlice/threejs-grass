@@ -9,7 +9,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import type { Camera, Object3D } from 'three/webgpu'
 import { Grass as GrassImpl, type GrassInput, type GrassRenderer } from './grass'
 import { TerrainPainter, type Brush } from './grass-map'
-import type { HeightFn, Terrain } from './terrain'
+import type { HeightFn, Terrain } from 'threejs-heightfield'
 
 export * from './index'
 /** The imperative {@link GrassImpl | Grass} class, re-exported under another name because `Grass` is the component here. */

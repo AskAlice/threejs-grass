@@ -1,0 +1,41 @@
+{
+  "name": "threejs-heightfield",
+  "version": "0.1.0",
+  "description": "Bake three.js meshes into fast heightfields: height lookup, slope and ray-marching for placing things on terrain",
+  "type": "module",
+  "license": "Apache-2.0",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean --external three",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "three": ">=0.186.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AskAlice/threejs-worldgen.git",
+    "directory": "packages/heightfield"
+  },
+  "homepage": "https://askalice.github.io/threejs-worldgen/docs/",
+  "keywords": [
+    "three",
+    "threejs",
+    "three.js",
+    "terrain",
+    "heightfield",
+    "heightmap",
+    "raycast",
+    "procedural",
+    "webgpu"
+  ]
+}
