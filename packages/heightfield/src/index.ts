@@ -1,3 +1,9 @@
+/**
+ * Ground under a three.js scene as a fast `(x, z) => y` lookup: bake any mesh into a heightfield, ray-march
+ * it, and measure slope. The shared base for placing grass, rocks, trees and structures on terrain.
+ *
+ * @module threejs-heightfield
+ */
 import { Box3, Vector3, type Object3D, type Mesh, type BufferGeometry } from 'three/webgpu'
 
 /** Returns terrain height at world (x, z), or NaN where there is no terrain. */
@@ -104,7 +110,7 @@ export function slopeAt(sample: HeightFn, x: number, z: number, e = 0.25): numbe
 
 /**
  * Intersects a ray with a height function by ray-marching then bisecting. Works for baked meshes and
- * procedural terrain alike (used by {@link TerrainPainter}).
+ * procedural terrain alike (`threejs-grass` uses it for its terrain painter).
  * @param dir Normalised ray direction.
  * @param step March step in metres; smaller catches thinner ridges.
  * @returns The hit point (a new Vector3), or `null`.

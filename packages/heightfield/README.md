@@ -1,0 +1,36 @@
+# threejs-heightfield
+
+Ground under a three.js scene as a fast `(x, z) => y` lookup. Bake any mesh or group into a heightfield once, then
+sample heights, measure slope and ray-march it without per-object raycasts. It's the base layer that
+[`threejs-grass`](https://www.npmjs.com/package/threejs-grass) and the other
+[threejs-worldgen](https://github.com/AskAlice/threejs-worldgen) packages use to put things on terrain.
+
+```bash
+npm i threejs-heightfield three
+```
+
+```ts
+import { bakeHeightfield, createHeightSampler, raycastHeight, slopeAt } from 'threejs-heightfield'
+
+const height = bakeHeightfield(terrainMesh)        // any Object3D; world transforms included
+height(12, -40)                                      // terrain height there, NaN off the terrain
+slopeAt(height, 12, -40)                             // rise / run, e.g. to keep trees off cliffs
+raycastHeight(height, camera.position, rayDir)      // Vector3 hit point or null, e.g. for brushes
+
+const flat = createHeightSampler()                   // no terrain: y = 0 everywhere
+const hills = createHeightSampler((x, z) => Math.sin(x * 0.03) * 4) // functions pass straight through
+```
+
+| Export | What it does |
+|---|---|
+| `bakeHeightfield(root, maxResolution = 1024)` | Rasterises every mesh under `root` on the CPU into a bilinear height lookup. Where surfaces overlap, the highest wins. |
+| `createHeightSampler(terrain?, maxResolution?)` | Accepts a mesh, a height function or nothing, and returns a `HeightFn`. |
+| `slopeAt(sample, x, z, e = 0.25)` | Gradient magnitude by central differences. |
+| `raycastHeight(sample, origin, dir, maxDistance = 2000, step = 0.5)` | Ray-march then bisect against any `HeightFn`. |
+| `type HeightFn` / `type Terrain` | `(x, z) => number` / `Object3D \| HeightFn` |
+
+Imports from `three/webgpu`, like `threejs-grass`. Full API docs: <https://askalice.github.io/threejs-worldgen/docs/>.
+
+## License
+
+Apache-2.0

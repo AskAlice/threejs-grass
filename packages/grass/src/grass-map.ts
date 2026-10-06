@@ -1,5 +1,5 @@
 import { DataTexture, LinearFilter, Mesh, MeshBasicNodeMaterial, Raycaster, RingGeometry, Vector2 } from 'three/webgpu'
-import { raycastHeight } from './terrain'
+import { raycastHeight } from 'threejs-heightfield'
 import type { Grass } from './grass'
 
 /** Options for {@link GrassMap}. */

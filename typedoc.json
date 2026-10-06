@@ -1,9 +1,10 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "name": "threejs-grass",
+  "name": "threejs-worldgen",
   "entryPoints": [
-    "src/index.ts",
-    "src/react.tsx"
+    "packages/heightfield/src/index.ts",
+    "packages/grass/src/index.ts",
+    "packages/grass/src/react.tsx"
   ],
   "out": "docs",
   "readme": "README.md",

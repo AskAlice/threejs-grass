@@ -4,7 +4,7 @@ import {
 } from 'three/webgpu'
 import { createGrassMaterial, createGrassUniforms, MAX_INTERACTORS, sampleGrassMap, type GrassMapSample, type GrassUniforms } from './material'
 import { presets, type GrassStyle, type PresetName } from './presets'
-import { createHeightSampler, slopeAt, type HeightFn, type Terrain } from './terrain'
+import { createHeightSampler, slopeAt, type HeightFn, type Terrain } from 'threejs-heightfield'
 import type { GrassMap } from './grass-map'
 
 /**

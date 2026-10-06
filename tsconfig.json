@@ -12,16 +12,19 @@
       "DOM"
     ],
     "paths": {
+      "threejs-heightfield": [
+        "./packages/heightfield/src/index.ts"
+      ],
       "threejs-grass": [
-        "./src/index.ts"
+        "./packages/grass/src/index.ts"
       ],
       "threejs-grass/react": [
-        "./src/react.tsx"
+        "./packages/grass/src/react.tsx"
       ]
     }
   },
   "include": [
-    "src",
+    "packages/*/src",
     "example"
   ],
   "exclude": [

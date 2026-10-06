@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { Mesh, PlaneGeometry, Vector3 } from 'three/webgpu'
-import { bakeHeightfield, raycastHeight, slopeAt } from '../src/terrain.ts'
+import { bakeHeightfield, raycastHeight, slopeAt } from '../src/index.ts'
 
 const surface = (x: number, z: number) => Math.sin(x * 0.1) * 3 + z * 0.2
 
