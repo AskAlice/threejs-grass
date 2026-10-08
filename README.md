@@ -14,8 +14,8 @@ an outdoor scene is its own small package, and every package shares one idea of 
 | [`threejs-grass`](https://github.com/AskAlice/threejs-worldgen/tree/main/packages/grass) | Infinite, terrain-aware WebGPU grass: 12 presets, four LODs, wind, interaction, grass maps and a terrain painter. Includes a React component. |
 | [`threejs-heightfield`](https://github.com/AskAlice/threejs-worldgen/tree/main/packages/heightfield) | Bakes meshes into fast `(x, z) => y` height lookups, with slope and ray-marching. The ground every other package stands on. |
 
-Rocks, trees, paths and structures (fences, walls, ruins, buildings) are the next packages planned. Each one takes a
-`Terrain` (a mesh or a height function) the same way `threejs-grass` does.
+Next up: 20 biomes, mountains, water, forests and savannas, and cities. [WORLDGEN.md](WORLDGEN.md) has the design
+and the package plan. Every package takes a `Terrain` (a mesh or a height function) the same way `threejs-grass` does.
 
 ## Development
 
