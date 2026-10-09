@@ -15,6 +15,24 @@ parametric, plain three.js first, great but optional React Three Fiber support.
 - [ ] `threejs-worldgen`: one `<World>` that composes all of it, biome-driven grass, scale-aware camera
 - [ ] Real erosion (GPU hydraulic) for bounded maps
 
+## Living world
+
+- [ ] Parametric scenery assets matched to biomes, with seeded per-instance variety: trees (spruce, oak, apple, palm,
+      redwood, …), bushes, plants, fish, asphalt / dirt / gravel / cobblestone roads, sidewalks, mailboxes, power lines,
+      street lights, houses, skyscrapers
+- [ ] Every asset generates in plausible locations only (fish in water, mailboxes at houses, power lines between
+      settlements, orchards near farms, palms on warm coasts)
+- [ ] `threejs-vehicles`: animated trains, cars, airplanes, rockets, bicycles, fishing boats, cruise liners, speedboats,
+      hovercraft, aircraft carriers, fighter jets on generated road, rail, sea and air networks
+- [ ] `threejs-weathering`: rain, snow, wind, lightning; wildfires that spread with fuel, wind and slope and regrow; every
+      asset can get wet, snowy, burnt and damaged through a shared material-state layer
+- [ ] `threejs-population`: population density on a hierarchical hexagonal grid (H3): rural cells, towns and urban
+      centres with central-place structure, driving settlements, networks and traffic
+- [ ] `threejs-fauna`: fish schools, then birds and wildlife
+- [ ] Fuzzy-searchable asset gallery for spawning and placing assets
+- [ ] Options menu grouped by package, then by class
+- [ ] Rule: generation is never random — seeded and procedural, but looks random (no `Math.random` in generation code)
+
 ## Sky and space
 
 - [ ] Day/night cycle driven by planet rotation (sun direction, sky colour, lighting, stars fade in)

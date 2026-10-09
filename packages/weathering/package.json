@@ -1,7 +1,7 @@
 {
-  "name": "threejs-worldgen",
+  "name": "threejs-weathering",
   "version": "0.1.0",
-  "description": "Whole procedural worlds for three.js and react-three-fiber: biomes, terrain, water, forests, grass and cities in one component",
+  "description": "Weather and weathering for three.js: rain, snow, wind and lightning, wildfires that spread and regrow, and wet/snowy/burnt/damaged material states",
   "type": "module",
   "license": "Apache-2.0",
   "sideEffects": false,
@@ -26,18 +26,7 @@
   },
   "dependencies": {
     "threejs-heightfield": "^0.1.0",
-    "threejs-biomes": "^0.1.0",
-    "threejs-scatter": "^0.1.0",
-    "threejs-trees": "^0.1.0",
-    "threejs-water": "^0.1.0",
-    "threejs-city": "^0.1.0",
-    "threejs-grass": "^0.2.0",
-    "threejs-sky": "^0.1.0",
-    "threejs-weathering": "^0.1.0",
-    "threejs-population": "^0.1.0",
-    "threejs-props": "^0.1.0",
-    "threejs-vehicles": "^0.1.0",
-    "threejs-fauna": "^0.1.0"
+    "threejs-biomes": "^0.1.0"
   },
   "peerDependencies": {
     "@react-three/fiber": ">=9",
@@ -55,18 +44,16 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AskAlice/threejs-worldgen.git",
-    "directory": "packages/worldgen"
+    "directory": "packages/weathering"
   },
   "homepage": "https://askalice.github.io/threejs-worldgen/",
   "keywords": [
     "three",
     "threejs",
-    "three.js",
     "webgpu",
     "tsl",
     "procedural",
     "react-three-fiber",
-    "r3f",
-    "worldgen"
+    "weathering"
   ]
 }

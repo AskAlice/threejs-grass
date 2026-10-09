@@ -56,6 +56,42 @@
       ],
       "threejs-worldgen/react": [
         "./packages/worldgen/src/react.tsx"
+      ],
+      "threejs-sky": [
+        "./packages/sky/src/index.ts"
+      ],
+      "threejs-sky/react": [
+        "./packages/sky/src/react.tsx"
+      ],
+      "threejs-weathering": [
+        "./packages/weathering/src/index.ts"
+      ],
+      "threejs-weathering/react": [
+        "./packages/weathering/src/react.tsx"
+      ],
+      "threejs-population": [
+        "./packages/population/src/index.ts"
+      ],
+      "threejs-population/react": [
+        "./packages/population/src/react.tsx"
+      ],
+      "threejs-props": [
+        "./packages/props/src/index.ts"
+      ],
+      "threejs-props/react": [
+        "./packages/props/src/react.tsx"
+      ],
+      "threejs-vehicles": [
+        "./packages/vehicles/src/index.ts"
+      ],
+      "threejs-vehicles/react": [
+        "./packages/vehicles/src/react.tsx"
+      ],
+      "threejs-fauna": [
+        "./packages/fauna/src/index.ts"
+      ],
+      "threejs-fauna/react": [
+        "./packages/fauna/src/react.tsx"
       ]
     },
     "allowImportingTsExtensions": true,

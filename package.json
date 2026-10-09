@@ -7,10 +7,16 @@
   "workspaces": [
     "packages/heightfield",
     "packages/biomes",
+    "packages/population",
     "packages/scatter",
     "packages/trees",
     "packages/water",
+    "packages/weathering",
+    "packages/fauna",
     "packages/city",
+    "packages/props",
+    "packages/vehicles",
+    "packages/sky",
     "packages/grass",
     "packages/worldgen"
   ],
