@@ -1,7 +1,7 @@
 {
-  "name": "threejs-grass",
-  "version": "0.2.0",
-  "description": "Infinite, terrain-aware WebGPU grass for three.js and react-three-fiber",
+  "name": "threejs-scatter",
+  "version": "0.1.0",
+  "description": "Streams instanced objects (trees, rocks, plants) over terrain in tiles: blue-noise placement, LODs and impostors",
   "type": "module",
   "license": "Apache-2.0",
   "sideEffects": false,
@@ -43,19 +43,18 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AskAlice/threejs-worldgen.git",
-    "directory": "packages/grass"
+    "directory": "packages/scatter"
   },
   "homepage": "https://askalice.github.io/threejs-worldgen/",
   "keywords": [
     "three",
     "threejs",
     "three.js",
-    "grass",
     "webgpu",
     "tsl",
+    "procedural",
     "react-three-fiber",
     "r3f",
-    "foliage",
-    "terrain"
+    "scatter"
   ]
 }

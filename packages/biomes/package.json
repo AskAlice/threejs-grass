@@ -1,7 +1,7 @@
 {
-  "name": "threejs-grass",
-  "version": "0.2.0",
-  "description": "Infinite, terrain-aware WebGPU grass for three.js and react-three-fiber",
+  "name": "threejs-biomes",
+  "version": "0.1.0",
+  "description": "Seeded climate, 20 blended biomes, mountains, rivers and streaming LOD terrain for three.js",
   "type": "module",
   "license": "Apache-2.0",
   "sideEffects": false,
@@ -43,19 +43,18 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AskAlice/threejs-worldgen.git",
-    "directory": "packages/grass"
+    "directory": "packages/biomes"
   },
   "homepage": "https://askalice.github.io/threejs-worldgen/",
   "keywords": [
     "three",
     "threejs",
     "three.js",
-    "grass",
     "webgpu",
     "tsl",
+    "procedural",
     "react-three-fiber",
     "r3f",
-    "foliage",
-    "terrain"
+    "biomes"
   ]
 }

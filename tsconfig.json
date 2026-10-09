@@ -15,16 +15,57 @@
       "threejs-heightfield": [
         "./packages/heightfield/src/index.ts"
       ],
+      "threejs-biomes": [
+        "./packages/biomes/src/index.ts"
+      ],
+      "threejs-biomes/react": [
+        "./packages/biomes/src/react.tsx"
+      ],
+      "threejs-scatter": [
+        "./packages/scatter/src/index.ts"
+      ],
+      "threejs-scatter/react": [
+        "./packages/scatter/src/react.tsx"
+      ],
+      "threejs-trees": [
+        "./packages/trees/src/index.ts"
+      ],
+      "threejs-trees/react": [
+        "./packages/trees/src/react.tsx"
+      ],
+      "threejs-water": [
+        "./packages/water/src/index.ts"
+      ],
+      "threejs-water/react": [
+        "./packages/water/src/react.tsx"
+      ],
+      "threejs-city": [
+        "./packages/city/src/index.ts"
+      ],
+      "threejs-city/react": [
+        "./packages/city/src/react.tsx"
+      ],
       "threejs-grass": [
         "./packages/grass/src/index.ts"
       ],
       "threejs-grass/react": [
         "./packages/grass/src/react.tsx"
+      ],
+      "threejs-worldgen": [
+        "./packages/worldgen/src/index.ts"
+      ],
+      "threejs-worldgen/react": [
+        "./packages/worldgen/src/react.tsx"
       ]
-    }
+    },
+    "allowImportingTsExtensions": true,
+    "customConditions": [
+      "worldgen-source"
+    ]
   },
   "include": [
     "packages/*/src",
+    "packages/*/test",
     "example"
   ],
   "exclude": [

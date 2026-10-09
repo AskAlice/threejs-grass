@@ -3,13 +3,16 @@ import react from '@vitejs/plugin-react'
 import { fileURLToPath } from 'node:url'
 
 const src = (p: string) => fileURLToPath(new URL(`../packages/${p}`, import.meta.url))
+const packages = ['heightfield', 'biomes', 'scatter', 'trees', 'water', 'city', 'grass', 'worldgen']
+const name = (dir: string) => (dir === 'worldgen' ? 'threejs-worldgen' : `threejs-${dir}`)
 
 export default defineConfig({
   plugins: [react()],
-  resolve: { alias: [
-    { find: /^threejs-heightfield$/, replacement: src('heightfield/src/index.ts') },
-    { find: /^threejs-grass\/react$/, replacement: src('grass/src/react.tsx') },
-    { find: /^threejs-grass$/, replacement: src('grass/src/index.ts') },
-  ] },
-  build: { target: 'esnext', rollupOptions: { input: ['index.html', 'r3f.html'] } },
+  // Demos run straight from each package's src/, so edits show up without a build.
+  resolve: { alias: packages.flatMap((dir) => [
+    { find: new RegExp(`^${name(dir)}/react$`), replacement: src(`${dir}/src/react.tsx`) },
+    { find: new RegExp(`^${name(dir)}$`), replacement: src(`${dir}/src/index.ts`) },
+  ]) },
+  worker: { format: 'es' },
+  build: { target: 'esnext', rollupOptions: { input: ['index.html', 'r3f.html', 'world.html', 'world-r3f.html'] } },
 })

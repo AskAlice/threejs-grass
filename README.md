@@ -32,6 +32,24 @@ New package: add `packages/<name>/` with its own `package.json` (`build` and `pr
 `workspaces` (after its dependencies), in the `paths` in `tsconfig.json`, in the aliases in `example/vite.config.ts`
 and in the `entryPoints` in `typedoc.json`.
 
+## Package conventions
+
+Every package follows the same shape, so worlds compose and every setting is live:
+
+- **Parametric:** one options object per feature, every number in it has a default, and `set(partial)` / `reset(full)`
+  change it at runtime. Options are plain JSON (no functions or class instances except where noted), so they can be
+  saved, shared, sent to a worker and bound to a GUI.
+- **Deterministic:** everything derives from `seed` and world position. The same options give the same world.
+- **Plain three.js first:** an imperative class with `.object` (add it to your scene), `update()` (once per frame) and
+  `dispose()`. Async setup goes in `static create()`.
+- **Optional React Three Fiber:** `src/react.tsx` (the `./react` export) wraps each class in a component whose props are
+  the options, calls `reset(props)` on every render and `update()` in `useFrame`. `react` and `-three/fiber` are
+  optional peer dependencies; the core never imports them.
+- **WebGPU:** `three/webgpu` and TSL node materials, like `threejs-grass`.
+- **Imports:** relative imports end in `.ts`; other packages are imported by name (they resolve to `src/` in development
+  through the `worldgen-source` export condition).
+- **Tests:** `packages/<name>/test/*.test.ts`, run by `node --test` (no DOM, no GPU), for the pure logic.
+
 ## Releasing
 
 Each package is versioned and released on its own. Tags are `<package>@<version>`:

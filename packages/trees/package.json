@@ -1,7 +1,7 @@
 {
-  "name": "threejs-grass",
-  "version": "0.2.0",
-  "description": "Infinite, terrain-aware WebGPU grass for three.js and react-three-fiber",
+  "name": "threejs-trees",
+  "version": "0.1.0",
+  "description": "Procedural trees, shrubs and rocks for three.js: space-colonisation species presets, instanced and impostored",
   "type": "module",
   "license": "Apache-2.0",
   "sideEffects": false,
@@ -25,7 +25,8 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "threejs-heightfield": "^0.1.0"
+    "threejs-heightfield": "^0.1.0",
+    "threejs-scatter": "^0.1.0"
   },
   "peerDependencies": {
     "@react-three/fiber": ">=9",
@@ -43,19 +44,18 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AskAlice/threejs-worldgen.git",
-    "directory": "packages/grass"
+    "directory": "packages/trees"
   },
   "homepage": "https://askalice.github.io/threejs-worldgen/",
   "keywords": [
     "three",
     "threejs",
     "three.js",
-    "grass",
     "webgpu",
     "tsl",
+    "procedural",
     "react-three-fiber",
     "r3f",
-    "foliage",
-    "terrain"
+    "trees"
   ]
 }
