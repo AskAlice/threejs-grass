@@ -256,7 +256,7 @@ export const DEFAULT_WORLD: WorldOptions = {
     moistureScale: 5200, moistureBias: 0, rainShadow: 0.35, windDirection: [1, 0], coastalMoisture: 0.12, riverMoisture: 0.25,
   },
   rules: {
-    blend: 0.2, maxBiomes: 4, coastHeight: 2.5, deepWater: 6, treelineTemperature: 2, alpineMinHeight: 350,
+    blend: 0.2, maxBiomes: 4, coastHeight: 1.6, deepWater: 6, treelineTemperature: 2, alpineMinHeight: 350,
     peakShare: 0.42, glacierTemperature: -14, wetlandMoisture: 0.72, wetlandMaxHeight: 8, mangroveTemperature: 23,
   },
   volcanoes: { chance: 0.05, regionSize: 14000, radius: 2200, height: 1100, crater: 0.14 },
@@ -336,7 +336,7 @@ export class World {
   private overrideIdx: Record<string, number> = {}
   private tints: Float32Array = new Float32Array(0)
   private groundMix: Float32Array = new Float32Array(0)
-  private listeners = new Set<(world: World) => void>()
+  private listeners = new Set<(world: World, region?: WorldRegion) => void>()
   private readonly cell: CellSample = { distance: 0, point: [0, 0, 0], random: 0 }
   private readonly w3: Vec3 = [0, 0, 0]
   private readonly scratch = createSample(32)
@@ -361,29 +361,35 @@ export class World {
     return this.changed()
   }
 
-  /** Adds a height modifier (e.g. from a city) and notifies listeners. */
-  addModifier(modifier: HeightModifier): this {
-    this.options.modifiers.push(modifier)
-    return this.changed()
+  /** Adds height modifiers (e.g. from a city) and notifies listeners with the region they touch. */
+  addModifier(...modifiers: HeightModifier[]): this {
+    this.options.modifiers.push(...modifiers)
+    return this.changed(modifierRegion(modifiers))
   }
 
-  /** Removes a height modifier previously added. */
-  removeModifier(modifier: HeightModifier): this {
-    const i = this.options.modifiers.indexOf(modifier)
-    if (i >= 0) this.options.modifiers.splice(i, 1)
-    return this.changed()
+  /** Removes height modifiers previously added. */
+  removeModifier(...modifiers: HeightModifier[]): this {
+    for (const m of modifiers) {
+      const i = this.options.modifiers.indexOf(m)
+      if (i >= 0) this.options.modifiers.splice(i, 1)
+    }
+    return this.changed(modifierRegion(modifiers))
   }
 
-  /** Calls `listener` after every change. Returns an unsubscribe function. */
-  onChange(listener: (world: World) => void): () => void {
+  /**
+   * Calls `listener` after every change. `region` is set when only that box (base-surface coordinates)
+   * changed — e.g. a modifier was added — so caches can rebuild just what it touches. Returns an
+   * unsubscribe function.
+   */
+  onChange(listener: (world: World, region?: WorldRegion) => void): () => void {
     this.listeners.add(listener)
     return () => this.listeners.delete(listener)
   }
 
-  private changed(): this {
+  private changed(region?: WorldRegion): this {
     this.prepare()
     this.version++
-    for (const l of this.listeners) l(this)
+    for (const l of this.listeners) l(this, region)
     return this
   }
 
@@ -681,9 +687,11 @@ export class World {
 
   /**
    * Ground material weights (in {@link GROUND_MATERIALS} order, summing to 1) and the blended ground
-   * colour for a sample. `slope` is rise/run (0 = flat); pass it from your mesh normals.
+   * colour (sRGB) for a sample. `slope` is rise/run (0 = flat); pass it from your mesh normals.
+   * @param overrides Apply the slope/cold/waterline/river overrides (rock, snow, sand, mud). The terrain
+   *   shader applies those per pixel itself, so chunks pass `false` and get the biome soil colour only.
    */
-  ground(sample: WorldSample, slope: number, weightsOut: Float32Array = new Float32Array(GROUND_MATERIALS.length), colorOut: Float32Array = new Float32Array(3)): { weights: Float32Array; color: Float32Array } {
+  ground(sample: WorldSample, slope: number, weightsOut: Float32Array = new Float32Array(GROUND_MATERIALS.length), colorOut: Float32Array = new Float32Array(3), overrides = true): { weights: Float32Array; color: Float32Array } {
     const o = this.options
     const m = GROUND_MATERIALS.length
     weightsOut.fill(0)
@@ -704,10 +712,12 @@ export class World {
       for (let k = 0; k < m; k++) weightsOut[k] *= 1 - t
       weightsOut[j] += t
     }
-    blend(6, mud)
-    blend(3, sand)
-    blend(4, rock)
-    blend(5, snow)
+    if (overrides) {
+      blend(6, mud)
+      blend(3, sand)
+      blend(4, rock)
+      blend(5, snow)
+    }
     const cols = this.groundColors()
     let r = 0, gg = 0, bb = 0
     for (let j = 0; j < m; j++) {
@@ -764,6 +774,25 @@ export class World {
     }
     return h
   }
+}
+
+/** An axis-aligned box in base-surface coordinates (what a change touched). */
+export interface WorldRegion {
+  /** Minimum corner. */
+  min: Vec3
+  /** Maximum corner. */
+  max: Vec3
+}
+
+function modifierRegion(mods: HeightModifier[]): WorldRegion | undefined {
+  if (!mods.length) return undefined
+  const prepared = buildModifierIndex(mods)
+  const min: Vec3 = [Infinity, Infinity, Infinity], max: Vec3 = [-Infinity, -Infinity, -Infinity]
+  for (const m of prepared) {
+    min[0] = Math.min(min[0], m.minX); min[1] = Math.min(min[1], m.minY); min[2] = Math.min(min[2], m.minZ)
+    max[0] = Math.max(max[0], m.maxX); max[1] = Math.max(max[1], m.maxY); max[2] = Math.max(max[2], m.maxZ)
+  }
+  return { min, max }
 }
 
 interface PreparedModifier {

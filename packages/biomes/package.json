@@ -18,10 +18,14 @@
       "worldgen-source": "./src/react.tsx",
       "types": "./dist/react.d.ts",
       "import": "./dist/react.js"
+    },
+    "./worker": {
+      "worldgen-source": "./src/worker.ts",
+      "import": "./dist/worker.js"
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts src/react.tsx --format esm --dts --clean --external three --external react --external @react-three/fiber",
+    "build": "tsup src/index.ts src/react.tsx src/worker.ts --format esm --dts --clean --external three --external react --external @react-three/fiber",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
