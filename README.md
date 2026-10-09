@@ -46,6 +46,10 @@ Every package follows the same shape, so worlds compose and every setting is liv
   the options, calls `reset(props)` on every render and `update()` in `useFrame`. `react` and `-three/fiber` are
   optional peer dependencies; the core never imports them.
 - **WebGPU:** `three/webgpu` and TSL node materials, like `threejs-grass`.
+- **Instancing and buffer geometry:** anything that repeats is an `InstancedMesh`, `BatchedMesh` or
+  `InstancedBufferGeometry` with per-instance attributes, never a mesh per object. Geometry is built straight into
+  typed-array `BufferAttribute`s, static parts are merged into few draw calls, materials are shared and varied per
+  instance in TSL, and bounding spheres are set explicitly.
 - **Plain TypeScript:** no constructor parameter properties, enums or namespaces (Node runs the tests by stripping types).
 - **Imports:** relative imports end in `.ts`; other packages are imported by name (they resolve to `src/` in development
   through the `worldgen-source` export condition).
