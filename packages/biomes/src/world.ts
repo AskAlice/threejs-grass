@@ -343,19 +343,19 @@ export class World {
 
   /** Creates a world; anything not given uses {@link DEFAULT_WORLD}. */
   constructor(input: WorldInput = {}) {
-    this.options = merge(structuredClone(DEFAULT_WORLD), input)
+    this.options = sanitize(merge(structuredClone(DEFAULT_WORLD), input))
     this.prepare()
   }
 
   /** Merges `input` into the current settings (nested objects merge; arrays replace) and notifies listeners. */
   set(input: WorldInput): this {
-    this.options = merge(this.options, input)
+    this.options = sanitize(merge(this.options, input))
     return this.changed()
   }
 
   /** Replaces all settings: anything not in `input` goes back to the defaults. */
   reset(input: WorldInput = {}): this {
-    const next = merge(structuredClone(DEFAULT_WORLD), input)
+    const next = sanitize(merge(structuredClone(DEFAULT_WORLD), input))
     if (JSON.stringify(next) === JSON.stringify(this.options)) return this
     this.options = next
     return this.changed()
@@ -935,6 +935,35 @@ function frac(frequency: number, octaves: number): FractalOptions {
 export function hexToRgb(hex: string): [number, number, number] {
   const v = parseInt(hex.replace('#', ''), 16)
   return [((v >> 16) & 255) / 255, ((v >> 8) & 255) / 255, (v & 255) / 255]
+}
+
+// Options often come from GUIs, URLs or files: replace non-finite numbers with defaults and keep sizes,
+// octave counts and the radius in ranges that can't divide by zero or hang a build.
+function sanitize(o: WorldOptions): WorldOptions {
+  const fix = (obj: Record<string, unknown>, defaults: Record<string, unknown>) => {
+    for (const [k, v] of Object.entries(obj)) {
+      const d = defaults?.[k]
+      if (typeof d === 'number' && (typeof v !== 'number' || !Number.isFinite(v))) obj[k] = d
+      else if (v && typeof v === 'object' && !Array.isArray(v) && d && typeof d === 'object') fix(v as Record<string, unknown>, d as Record<string, unknown>)
+    }
+  }
+  fix(o as unknown as Record<string, unknown>, DEFAULT_WORLD as unknown as Record<string, unknown>)
+  const positive = (v: number, min: number) => Math.max(min, v)
+  const octaves = (v: number) => Math.min(16, Math.max(1, Math.round(v)))
+  o.radius = positive(o.radius, 100)
+  o.continents.scale = positive(o.continents.scale, 1); o.continents.octaves = octaves(o.continents.octaves)
+  o.erosion.scale = positive(o.erosion.scale, 1); o.erosion.octaves = octaves(o.erosion.octaves)
+  o.mountains.scale = positive(o.mountains.scale, 1); o.mountains.rangeScale = positive(o.mountains.rangeScale, 1); o.mountains.octaves = octaves(o.mountains.octaves)
+  o.hills.scale = positive(o.hills.scale, 0.01); o.hills.octaves = octaves(o.hills.octaves)
+  o.detail.scale = positive(o.detail.scale, 0.001); o.detail.octaves = octaves(o.detail.octaves)
+  o.micro.scale = positive(o.micro.scale, 0.0001); o.micro.octaves = octaves(o.micro.octaves)
+  o.rivers.scale = positive(o.rivers.scale, 1); o.rivers.width = positive(o.rivers.width, 1e-4); o.rivers.valleyWidth = positive(o.rivers.valleyWidth, o.rivers.width)
+  o.climate.temperatureScale = positive(o.climate.temperatureScale, 1); o.climate.moistureScale = positive(o.climate.moistureScale, 1)
+  o.volcanoes.regionSize = positive(o.volcanoes.regionSize, 1); o.volcanoes.radius = positive(o.volcanoes.radius, 0.01)
+  o.rules.blend = positive(o.rules.blend, 0.01); o.rules.maxBiomes = Math.min(16, Math.max(1, Math.round(o.rules.maxBiomes)))
+  if (!o.continents.curve?.length) o.continents.curve = structuredClone(DEFAULT_WORLD.continents.curve)
+  if (!o.biomes?.length) o.biomes = structuredClone(DEFAULT_WORLD.biomes)
+  return o
 }
 
 function merge<T>(target: T, input: unknown): T {

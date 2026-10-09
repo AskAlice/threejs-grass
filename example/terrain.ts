@@ -1,8 +1,8 @@
 import * as THREE from 'three/webgpu'
-import GUI from 'three/addons/libs/lil-gui.module.min.js'
 import { World, WorldTerrain, SurfaceControls, renderWorldMap, createSample, type MapMode, type WorldInput } from 'threejs-biomes'
 import TerrainWorker from 'threejs-biomes/worker?worker'
-import { addOptions, patch } from './options-gui'
+import { patch } from './options-gui'
+import { classOf, createPanel } from './panel'
 
 // threejs-biomes sandbox: every World and terrain option live, flat world or planet, ant to orbit.
 const params = new URLSearchParams(location.search)
@@ -44,31 +44,36 @@ const modes: MapMode[] = ['biomes', 'height', 'temperature', 'moisture', 'contin
 const ui = { surface: planet ? 'sphere' : 'plane', map: 'biomes' as MapMode, mapSize: 40_000, fog: true }
 let mapDirty = true
 
-const gui = new GUI({ title: 'threejs-biomes' })
-gui.add(ui, 'surface', ['plane', 'sphere']).name('surface (reloads)').onChange((v: string) => { location.search = `?surface=${v === 'sphere' ? 'sphere' : 'plane'}` })
-gui.add(ui, 'map', modes).onChange(() => (mapDirty = true))
-gui.add(ui, 'mapSize', 2000, 200_000, 1000).onChange(() => (mapDirty = true))
-gui.add(ui, 'fog')
-const terrainFolder = gui.addFolder('terrain')
-const terrainState = structuredClone({ ...terrain.options, origin: undefined }) as Record<string, any>
-delete terrainState.origin
-addOptions(terrainFolder, terrainState, (path, value) => terrain.set(patch(path, value)), {
-  ranges: { resolution: [9, 65, 8], lodFactor: [0.5, 6, 0.1], minChunkSize: [0.25, 64, 0.25], viewDistance: [1000, 100_000, 500], buildBudget: [1, 30, 1], skirt: [0, 0.2, 0.005] },
-  choices: { debug: ['none', 'biomes', 'lod', 'splat'] },
-  skip: ['jobsPerWorker', 'keepAlive'],
-})
-const worldFolder = gui.addFolder('world')
-const worldState = structuredClone(world.options) as Record<string, any>
 let pending: ReturnType<typeof setTimeout> | undefined
-addOptions(worldFolder, worldState, (path, value) => {
-  // Debounce: a world change rebuilds every chunk.
-  clearTimeout(pending)
-  pending = setTimeout(() => { world.set(patch(path, value) as WorldInput); mapDirty = true }, 150)
-}, {
-  skip: ['biomes', 'modifiers', 'curve', 'colors', 'windDirection', 'surface', 'origin'],
-  ranges: { radius: [5000, 6_371_000, 1000], seaLevel: [-200, 200, 1], threshold: [0, 1, 0.01], landBias: [-0.6, 0.6, 0.01], chance: [0, 1, 0.01], warp: [0, 1, 0.01], sharpness: [0.5, 4, 0.1], blend: [0.05, 0.6, 0.01], maxBiomes: [1, 8, 1] },
-})
-worldFolder.close()
+const worldOptions = structuredClone(world.options) as Record<string, any>
+const terrainOptions = structuredClone(terrain.options) as Record<string, any>
+delete terrainOptions.origin
+const gui = createPanel([
+  {
+    name: 'threejs-biomes',
+    classes: [
+      {
+        name: 'World', target: worldOptions,
+        // Debounced: a world change rebuilds every chunk.
+        onChange: (path, value) => { clearTimeout(pending); pending = setTimeout(() => { world.set(patch(path, value) as WorldInput); mapDirty = true }, 150) },
+        skip: ['biomes', 'modifiers', 'curve', 'colors', 'windDirection', 'surface', 'origin'],
+        ranges: { radius: [5000, 6_371_000, 1000], seaLevel: [-200, 200, 1], threshold: [0, 1, 0.01], landBias: [-0.6, 0.6, 0.01], chance: [0, 1, 0.01], warp: [0, 1, 0.01], sharpness: [0.5, 4, 0.1], blend: [0.05, 0.6, 0.01], maxBiomes: [1, 8, 1] },
+      },
+      {
+        name: 'WorldTerrain', target: terrainOptions, onChange: (path, value) => terrain.set(patch(path, value)),
+        ranges: { resolution: [9, 65, 8], lodFactor: [0.5, 6, 0.1], minChunkSize: [0.25, 64, 0.25], viewDistance: [1000, 100_000, 500], buildBudget: [1, 30, 1], skirt: [0, 0.2, 0.005] },
+        choices: { debug: ['none', 'biomes', 'lod', 'splat'] },
+        skip: ['jobsPerWorker', 'keepAlive'],
+      },
+      classOf('SurfaceControls', controls, controls.options, { ranges: { minDistance: [0.005, 10, 0.005], maxElevation: [0.1, 1.57, 0.01], minElevation: [0, 1, 0.01] } }),
+    ],
+  },
+])
+const sandbox = gui.addFolder('sandbox')
+sandbox.add(ui, 'surface', ['plane', 'sphere']).name('surface (reloads)').onChange((v: string) => { location.search = `?surface=${v === 'sphere' ? 'sphere' : 'plane'}` })
+sandbox.add(ui, 'map', modes).onChange(() => (mapDirty = true))
+sandbox.add(ui, 'mapSize', 2000, 200_000, 1000).onChange(() => (mapDirty = true))
+sandbox.add(ui, 'fog')
 
 addEventListener('keydown', (e) => {
   if (e.key === 'm') { ui.map = modes[(modes.indexOf(ui.map) + 1) % modes.length]; mapDirty = true; gui.controllersRecursive().forEach((c) => c.updateDisplay()) }

@@ -59,8 +59,18 @@ export class SurfaceControls {
   private cleanup: () => void
   private last = performance.now()
 
+  /** The controlled camera. */
+  readonly camera: PerspectiveCamera
+  /** Element that receives pointer and wheel input. */
+  readonly dom: HTMLElement
+  /** The world the camera moves over. */
+  readonly world: World
+
   /** Attaches to `dom` for pointer, wheel and keyboard input. */
-  constructor(readonly camera: PerspectiveCamera, readonly dom: HTMLElement, readonly world: World, input: Partial<SurfaceControlsOptions> & { focus?: Vec3; distance?: number } = {}) {
+  constructor(camera: PerspectiveCamera, dom: HTMLElement, world: World, input: Partial<SurfaceControlsOptions> & { focus?: Vec3; distance?: number } = {}) {
+    this.camera = camera
+    this.dom = dom
+    this.world = world
     const { focus, distance, ...rest } = input
     this.options = { ...DEFAULT_SURFACE_CONTROLS, ...rest }
     const R = world.options.surface === 'sphere' ? world.options.radius : 0

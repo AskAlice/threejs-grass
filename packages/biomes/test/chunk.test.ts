@@ -52,3 +52,11 @@ test('neighbouring plane chunks share border heights exactly', () => {
     assert.ok(Math.abs(ya - yb) < 1e-3, `row ${j}: ${ya} vs ${yb}`)
   }
 })
+
+test('invalid options from GUIs or URLs are sanitised instead of producing NaN', () => {
+  const world = new World({ seed: 7, continents: { scale: 0, octaves: 0 }, mountains: { scale: Number.NaN }, rules: { maxBiomes: 0 } })
+  const s = world.sampleAt(100, 0, 100)
+  assert.ok(Number.isFinite(s.elevation) && s.count > 0)
+  world.set({ hills: { scale: -5 } })
+  assert.ok(Number.isFinite(world.sampleAt(5, 0, 5).elevation))
+})

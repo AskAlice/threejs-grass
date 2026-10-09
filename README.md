@@ -46,6 +46,7 @@ Every package follows the same shape, so worlds compose and every setting is liv
   the options, calls `reset(props)` on every render and `update()` in `useFrame`. `react` and `-three/fiber` are
   optional peer dependencies; the core never imports them.
 - **WebGPU:** `three/webgpu` and TSL node materials, like `threejs-grass`.
+- **Plain TypeScript:** no constructor parameter properties, enums or namespaces (Node runs the tests by stripping types).
 - **Imports:** relative imports end in `.ts`; other packages are imported by name (they resolve to `src/` in development
   through the `worldgen-source` export condition).
 - **Tests:** `packages/<name>/test/*.test.ts`, run by `node --test` (no DOM, no GPU), for the pure logic.
