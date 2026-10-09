@@ -14,6 +14,8 @@ export default defineConfig({
     { find: new RegExp(`^${name(dir)}/react$`), replacement: src(`${dir}/src/react.tsx`) },
     { find: new RegExp(`^${name(dir)}$`), replacement: src(`${dir}/src/index.ts`) },
   ])] },
+  // Reachable over the tailnet (tailscale serve) as well as localhost.
+  server: { allowedHosts: ['.ts.net', 'localhost', '127.0.0.1'] },
   worker: { format: 'es' },
   build: { target: 'esnext', rollupOptions: { input: readdirSync(fileURLToPath(new URL('.', import.meta.url))).filter((f) => f.endsWith('.html')) } },
 })
