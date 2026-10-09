@@ -69,11 +69,11 @@ export function createPanel(packages: PanelPackage[], { title = 'threejs-worldge
         cf.controllersRecursive().forEach((c) => c.updateDisplay())
       } }, 'reset').name(`↺ reset ${cls.name}`)
       cf.close()
-      // Re-apply shared options from the URL.
+      // Re-apply shared options from the URL — untrusted input: only existing options, same value type.
       for (const [p, v] of Object.entries(shared[key] ?? {})) {
         const path = p.split('.')
-        setPath(cls.target, path, v)
-        cls.onChange(path, v)
+        if (setPath(cls.target, path, v)) cls.onChange(path, v)
+        else delete shared[key][p]
       }
       cf.controllersRecursive().forEach((c) => c.updateDisplay())
     }
@@ -104,16 +104,36 @@ function folderPath(f: GUI | undefined): string {
   return names.join(' ')
 }
 
-function setPath(target: Record<string, any>, path: string[], value: unknown) {
-  let o = target
-  for (const k of path.slice(0, -1)) o = o[k] ??= {}
-  o[path[path.length - 1]] = value
+const FORBIDDEN = new Set(['__proto__', 'constructor', 'prototype'])
+
+// Sets an existing option only (own keys all the way down, no prototype keys, same value type).
+// Returns false and changes nothing otherwise.
+function setPath(target: Record<string, any>, path: string[], value: unknown): boolean {
+  let o: any = target
+  for (let i = 0; i < path.length; i++) {
+    const k = path[i]
+    if (FORBIDDEN.has(k) || o === null || typeof o !== 'object' || !Object.hasOwn(o, k)) return false
+    if (i === path.length - 1) {
+      if (typeof o[k] !== typeof value || (typeof value === 'object' && value !== null)) return false
+      o[k] = value
+      return true
+    }
+    o = o[k]
+  }
+  return false
 }
 
 function readHash(): Record<string, Record<string, unknown>> {
   try {
     const h = location.hash.slice(1)
-    return h ? JSON.parse(decodeURIComponent(atob(h))) : {}
+    const parsed = h ? JSON.parse(decodeURIComponent(atob(h))) : {}
+    // Plain objects only, without prototype keys (values are checked again by setPath).
+    const clean: Record<string, Record<string, unknown>> = Object.create(null)
+    if (parsed && typeof parsed === 'object') for (const [k, v] of Object.entries(parsed)) {
+      if (FORBIDDEN.has(k) || !v || typeof v !== 'object') continue
+      clean[k] = Object.fromEntries(Object.entries(v as object).filter(([p]) => !p.split('.').some((s) => FORBIDDEN.has(s))))
+    }
+    return clean
   } catch {
     return {}
   }
