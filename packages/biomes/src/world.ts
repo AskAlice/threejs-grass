@@ -414,7 +414,7 @@ export class World {
       GROUND_MATERIALS.forEach((k, j) => (this.groundMix[i * m + j] = (b.ground[k] ?? 0) / (total || 1)))
     })
     this.frame = new LocalFrame(this)
-    this.modifierIndex = buildModifierIndex(o.modifiers)
+    this.modifierIndex = new ModifierGrid(buildModifierIndex(o.modifiers))
   }
 
   /** Planet radius, or 0 on a flat world. */
@@ -765,15 +765,68 @@ export class World {
   }
 
   // --- modifiers -------------------------------------------------------------------------------
-  private modifierIndex: PreparedModifier[] = []
+  private modifierIndex = new ModifierGrid([])
 
   private applyModifiers(x: number, y: number, z: number, h: number): number {
-    for (const m of this.modifierIndex) {
+    return this.modifierIndex.apply(x, y, z, h)
+  }
+}
+
+/**
+ * Uniform hash grid over modifier boxes, so a sample only visits the few modifiers near it (cities add
+ * thousands). Lists hold modifier indices in insertion order, because modifiers apply in order.
+ * Modifiers spanning more than `MAX_CELLS` cells go in `big`, and are merged in by index at query time.
+ */
+class ModifierGrid {
+  readonly length: number
+  private mods: PreparedModifier[]
+  private cell: number
+  private cells = new Map<number, number[]>()
+  private big: number[] = []
+
+  constructor(mods: PreparedModifier[]) {
+    this.mods = mods
+    this.length = mods.length
+    // Cell size ≈ median modifier size, so a typical modifier touches a handful of cells.
+    const sizes = mods.map((m) => Math.max(m.maxX - m.minX, m.maxY - m.minY, m.maxZ - m.minZ)).sort((a, b) => a - b)
+    this.cell = Math.max(8, sizes[sizes.length >> 1] ?? 8)
+    const c = this.cell
+    mods.forEach((m, i) => {
+      const x0 = Math.floor(m.minX / c), x1 = Math.floor(m.maxX / c)
+      const y0 = Math.floor(m.minY / c), y1 = Math.floor(m.maxY / c)
+      const z0 = Math.floor(m.minZ / c), z1 = Math.floor(m.maxZ / c)
+      if ((x1 - x0 + 1) * (y1 - y0 + 1) * (z1 - z0 + 1) > MAX_CELLS) { this.big.push(i); return }
+      for (let ix = x0; ix <= x1; ix++) for (let iy = y0; iy <= y1; iy++) for (let iz = z0; iz <= z1; iz++) {
+        const k = cellKey(ix, iy, iz)
+        const list = this.cells.get(k)
+        if (!list) this.cells.set(k, [i])
+        else if (list[list.length - 1] !== i) list.push(i) // hash collisions could repeat an index
+      }
+    })
+  }
+
+  /** Applies every modifier whose box contains (x, y, z), in insertion order. */
+  apply(x: number, y: number, z: number, h: number): number {
+    if (!this.length) return h
+    const c = this.cell
+    const local = this.cells.get(cellKey(Math.floor(x / c), Math.floor(y / c), Math.floor(z / c)))
+    const big = this.big
+    let a = 0, b = 0
+    const na = local?.length ?? 0, nb = big.length
+    while (a < na || b < nb) {
+      const i = b >= nb || (a < na && local![a] < big[b]) ? local![a++] : big[b++]
+      const m = this.mods[i]
       if (x < m.minX || x > m.maxX || y < m.minY || y > m.maxY || z < m.minZ || z > m.maxZ) continue
       h = m.apply(x, y, z, h)
     }
     return h
   }
+}
+
+const MAX_CELLS = 512
+
+function cellKey(x: number, y: number, z: number): number {
+  return (Math.imul(x, 73856093) ^ Math.imul(y, 19349663) ^ Math.imul(z, 83492791)) >>> 0
 }
 
 /** An axis-aligned box in base-surface coordinates (what a change touched). */
